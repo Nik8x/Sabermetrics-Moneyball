@@ -163,7 +163,7 @@ colSums(prop.by.column)[1:4] # this should be equal to 1
 
 ***
 
-** Plots **
+**Plots**
 
 ```{r}
 barplot(table(mpg$manufacturer)) # bar chart
