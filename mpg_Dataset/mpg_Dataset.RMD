@@ -1,0 +1,207 @@
+---
+title: "mpg_Dataset"
+author: "N!K8"
+output: html_document
+---
+
+```{r}
+# install.packages('ggplot2')
+require("ggplot2")
+head(mpg)
+```
+
+***
+
+**Measures of Central Tendancy**
+
+```{r}
+mean(mpg$hwy) # Average
+median(mpg$hwy) #Median
+```
+
+```{r}
+quantile(mpg$hwy) # quartile
+max(mpg$hwy)
+```
+
+```{r}
+quantile(mpg$hwy, 0.9) # Percentile
+quantile(mpg$hwy, c(0.1, 0.2, 0.3, 0.4, 0.5))
+```
+
+***
+
+**Measures of Spread**
+
+```{r}
+range(mpg$hwy) # Range
+diff(range(mpg$hwy))
+# OR
+max(mpg$hwy) - min(mpg$hwy)
+# As range is maximum - minimum
+```
+
+```{r}
+IQR(mpg$hwy) # IQR(interquartile range)
+# OR
+quantile(mpg$hwy, 0.75) - quantile(mpg$hwy, 0.25)
+# gives same result as IQR lies between 25% to 75% of data.
+```
+
+```{r}
+# MAD(Mean Absolute Deviation)
+#install.packages('lsr')
+require("lsr")
+aad(mpg$hwy)
+# OR
+mean(abs(mpg$hwy - mean(mpg$hwy)))
+```
+
+```{r}
+sd(mpg$hwy) # Standard Deviation(s)
+```
+
+```{r}
+var(mpg$hwy) # Variance(s^2)
+```
+
+***
+
+**Graphs**
+
+```{r}
+hist(mpg$hwy)
+hist(mpg$hwy, breaks = 4) # set number of bins = 4
+```
+
+```{r}
+# Set my own breaks
+range(mpg$hwy)
+my.breaks = seq(10, 45, 5) # from 10 to 45 with bin size of 5
+hist(mpg$hwy, breaks = my.breaks) # plot histogram with my.breaks
+```
+
+```{r}
+my.hist = hist(mpg$hwy, breaks = my.breaks, plot = F)
+my.hist$breaks # This shows the breaks
+```
+
+```{r}
+my.hist$counts # This shows the frequency of histogram data
+```
+
+```{r}
+freq.dist = cbind(bin.end = my.hist$breaks[1:7], freq = my.hist$counts)
+(freq.dist = data.frame(freq.dist)) # create a dataframe of my.hist
+```
+
+***
+
+**Skewness**
+
+```{r}
+require(lattice)
+hist(mpg$displ, prob = TRUE, ylim = c(0, 0.6)) # ylim = c(0, 0.6)) limits the y axis to given 
+lines(density(mpg$displ)) # plot line over histogram
+```
+
+```{r}
+mean.displ = mean(mpg$displ)
+median.displ = median(mpg$displ)
+skewness_displ = 3 * (mean.displ - median.displ)/sd(mpg$displ) # Skewness = 3(mean − median)/standard deviation
+skewness_displ
+```
+
+***
+
+**Descriptive Stats. for Qualitative Variables**
+
+```{r}
+head(mpg) # we can see categorial variables here, note that yearis int but can be changed to chr
+```
+
+```{r}
+# Tabulation
+table(mpg$year)
+table(mpg$manufacturer)
+table(mpg$cyl)
+```
+
+```{r}
+# Now we get percentages of above counts using prop.table
+prop.table(table(mpg$year))
+prop.table(table(mpg$manufacturer))
+prop.table(table(mpg$cyl))
+```
+
+```{r}
+# Now we cross tabulize among above tables
+table(mpg$manufacturer, mpg$cyl)
+table(mpg$manufacturer, mpg$cyl, mpg$year)
+```
+
+```{r}
+# Now we cet percentages of above cross tabulations
+(man.by.cyl = table(mpg$manufacturer, mpg$cyl)) # manufacture by cycle
+prop.man.by.cyl = prop.table(man.by.cyl)
+round(prop.man.by.cyl, digits = 2) # round off
+```
+
+```{r}
+prop.by.row = prop.table(man.by.cyl, margin = 1)
+head(round(prop.by.row, digits = 2)) # Percentages in row
+
+rowSums(prop.by.row)[1:4] # this should be equal to 1
+```
+
+```{r}
+prop.by.column = prop.table(man.by.cyl, margin = 2)
+head(round(prop.by.column, digits = 2)) # Percentages in column
+
+colSums(prop.by.column)[1:4] # this should be equal to 1
+```
+
+***
+
+** Plots **
+
+```{r}
+barplot(table(mpg$manufacturer)) # bar chart
+```
+
+```{r}
+pie(table(mpg$cyl)) # pie chart, not good for graphical representation
+```
+
+```{r}
+# install.packages(ggplot2)
+require(ggplot2)
+ggplot(data = mpg) + geom_bar(aes(x = manufacturer, fill = factor(year)))
+```
+
+```{r}
+# Boxplot
+boxplot(mpg$hwy, main = "Highway Milage")
+
+summary(mpg[c("cty")])
+```
+
+```{r}
+# Now we plot boxplot showing highway and city mileage
+boxplot(mpg$hwy, mpg$cty, names = c("Highway", "City"))
+
+summary(mpg[c("cty", "hwy")])
+```
+
+```{r}
+# Now we plot between highway mileage vs class
+boxplot(mpg$hwy ~ mpg$class)
+```
+
+```{r}
+# To get median of each class in above plot we use doBy package
+# install.packages('doBy')
+require("doBy")
+summaryBy(hwy ~ class, data = as.data.frame(mpg), FUN = c(median))
+```
+
