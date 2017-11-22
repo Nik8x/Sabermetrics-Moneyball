@@ -1,0 +1,54 @@
+---
+title: "Sample_Students_Grades"
+author: "Niket"
+output: rmarkdown::github_document
+---
+
+```{r}
+sample.grades = read.table(file.choose(), header = T) # select and load grades.txt # With read.table load data either from a web source or from a local file.
+head(sample.grades)
+```
+
+***
+
+**Data Cleaning**
+
+```{r}
+# read.table() does some data cleaning.
+summary(sample.grades)
+# for semester we get frequencies
+```
+
+```{r}
+sample.grades$Student_ID <- as.factor(sample.grades$Student_ID) # Convert it to factor
+```
+
+```{r}
+# Alternatively set it to a row name (and remove it from the dataset)
+row.names(sample.grades) <- as.character(sample.grades$Student_ID)
+sample.grades <- sample.grades[, -1]
+sample.grades["1", ]
+```
+
+***
+
+**readLines**
+
+```{r}
+data2 = readLines(file.choose())
+
+grades.raw = strsplit(data2, "\t") # Split each line by tab
+
+grades.colnames <- grades.raw[[1]] # First line is the column names so let's save them
+
+# Creating vectors for each variable and identify their variable type
+student.ids <- sapply(grades.raw[-1], function(x) x[1])
+semester <- sapply(grades.raw[-1], function(x) x[2])
+s.grades <- sapply(grades.raw[-1], function(x) x[3])
+
+# Create a dataframe and identifying the variable types all at once
+grades.df <- data.frame(semester = as.factor(semester), grade = as.numeric(s.grades), row.names = student.ids)
+
+summary(grades.df)
+```
+
