@@ -1,0 +1,137 @@
+---
+title: "Sentiment_Analysis"
+author: "Niket"
+date: "May 21, 2018"
+output: html_document
+---
+
+```{r}
+# libraries
+library(tidyverse)
+library(tidytext)
+library(glue)
+library(stringr)
+```
+
+```{r}
+files <- list.files("../Sentiment-Analysis") # list of files in the directory
+```
+
+```{r}
+fileName <- glue("../Sentiment-Analysis/", files[1], sep = "") # stick together path to the file & first file name
+
+fileName <- trimws(fileName) # get rid of any spaces
+```
+
+```{r}
+fileText <- glue(read_file(fileName)) # read in the new file
+fileText <- gsub("\\$", "", fileText) # remove $ sign
+```
+
+```{r}
+# tokenize
+tokens <- data_frame(text = fileText) %>% unnest_tokens(word, text)
+
+```
+
+```{r}
+# get sentiment from first text using bing list
+tokens %>%
+  inner_join(get_sentiments("bing")) %>% # pull out only sentiment words
+  count(sentiment) %>% # count the # of +ve & -ve words
+  spread(sentiment, n, fill = 0) %>% # made data wider than narrow
+  mutate(sentiment = positive - negative) # # of +ve words - # of -ve words
+```
+
+```{r}
+# write a function that returns number of postive and negative sentiment words and their difference from a file
+getSentiment <- function(file){
+  # get the file
+  fileName <- glue("../Sentiment-Analysis/", file, sep = "")
+  # get rid of spaces
+  fileName <- trimws(fileName)
+  
+  # read in new file
+  fileText <- glue(read_file(fileName))
+  # remove $ sign
+  fileText <- gsub("\\$", "", fileText)
+  
+  # tokenize
+  tokens <- data_frame(text = fileText) %>% unnest_tokens(word, text)
+  
+  # get sentiment from the first text
+  sentiment <- tokens %>%
+    inner_join(get_sentiments("bing")) %>%
+    count(sentiment) %>%
+    spread(sentiment, n, fill = 0) %>%
+    mutate(sentiment = positive - negative) %>%
+    mutate(file = file) %>% # add the name of our file
+    mutate(year = as.numeric(str_match(file, "\\d{4}"))) %>% # add the year
+    mutate(president = str_match(file, "(.*?)_")[2]) # add president
+  
+  return(sentiment) # return sentiment dataframe
+}
+
+getSentiment(files[1])
+
+```
+
+```{r}
+# file to put our output in
+sentiments <- data_frame()
+ 
+# get the sentiments for each file in our datset
+for(i in files){
+    sentiments <- rbind(sentiments, getSentiment(i))
+}
+ 
+# disambiguate Bush Sr. and George W. Bush 
+# correct president in applicable rows
+bushSr <- sentiments %>% 
+  filter(president == "Bush") %>% # get rows where the president is named "Bush"...
+  filter(year < 2000) %>% # ...and the year is before 200
+  mutate(president = "Bush Sr.") # and change "Bush" to "Bush Sr."
+ 
+# remove incorrect rows
+sentiments <- anti_join(sentiments, sentiments[sentiments$president == "Bush" & sentiments$year < 2000, ])
+ 
+# add corrected rows to data_frame 
+sentiments <- full_join(sentiments, bushSr)
+```
+
+```{r}
+# plot of sentiment over time & automatically choose a method to model the change
+ggplot(sentiments, aes(x = as.numeric(year), y = sentiment)) + 
+  geom_point(aes(color = president))+ # add points to our plot, color-coded by president
+  geom_smooth(method = "auto") # pick a method & fit a model
+
+```
+
+```{r}
+# plot of sentiment by president
+ggplot(sentiments, aes(x = president, y = sentiment, color = president)) + 
+  geom_boxplot() # draw a boxplot for each president
+```
+
+```{r}
+# is the difference between parties significant?
+# get democratic presidents & add party affiliation
+democrats <- sentiments %>%
+    filter(president == c("Clinton","Obama")) %>%
+    mutate(party = "D")
+ 
+# get democratic presidents & party add affiliation
+republicans <- sentiments %>%
+    filter(president != "Clinton" & president != "Obama") %>%
+    mutate(party = "R")
+ 
+# join both
+byParty <- full_join(democrats, republicans)
+ 
+# the difference between the parties is significant
+t.test(democrats$sentiment, republicans$sentiment)
+ 
+# plot sentiment by party
+ggplot(byParty, aes(x = party, y = sentiment, color = party)) + geom_boxplot() + geom_point()
+```
+
