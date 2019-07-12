@@ -1,0 +1,466 @@
+---
+title: "Work_Sample_Analysis_Clustering"
+author: "Heena"
+date: "April 1, 2018"
+output:
+  html_document: default
+---
+
+```{r}
+cal <- read.csv("Calendar.csv", header = TRUE)
+ft <- read.csv("FileType.csv", header = TRUE)
+task <- read.csv("Task.csv", header = TRUE)
+uni <- read.csv("Universe.csv", header = TRUE)
+```
+
+```{r}
+# packages to be preinstalled with the libraries used in this project.
+
+#install.packages("ggplot2")
+library(ggplot2)
+#library(ggthemes)
+
+#install.packages("dplyr")
+library("dplyr")
+
+
+library("scales")
+
+library("lubridate")
+
+library("stringr")
+
+#install.packages("factoextra")
+library("factoextra")
+```
+
+```{r}
+summary(cal)
+summary(cal$Billable.CE)    # it contains numerical values with values between 0 and 5 and is depended on Actual.CE as given, 
+summary(cal$Billable.CE > 5)  # there are 1745 values greater than 5 which shouldn't be there, let's drop those rows
+cal <- cal[!cal$Billable.CE > 5,]
+
+sum(cal$Supplier == "Unknown")  # we will remove Unknown at required places
+
+# Also Developer.ID and eMail are same, so one can be dropped
+
+##
+
+summary(ft) 
+summary(ft$Actual.CE) # it contains outliers
+summary(ft$Actual.CE[!ft$Actual.CE %in% boxplot.stats(ft$Actual.CE)$out])  # without outliers
+
+# eMail can be used instead of Developer.ID over here
+
+##
+
+summary(task)
+
+##
+
+summary(uni)
+```
+
+
+
+***
+***
+
+## a # Number of Vendors used in each country
+
+```{r}
+str(cal$Supplier)       # it has 45 known vendors and the rest suppliers fall under unknown
+summary(cal$Supplier == 'Unknown')  # there are 134055 suppliers which do not fall in given vendors
+
+# as we don't need unknown values over here, let's drop them
+
+a <- aggregate(Supplier ~ Country, data = cal, length)
+
+a_2 <- a[!a$Country == "Unknown", ] # this drops all the rows containing Unknown supplier
+```
+
+```{r}
+ggplot(data = a_2, aes(Country, Supplier, fill = Supplier)) + geom_bar(stat = "identity") + 
+        xlab("Country") + ylab("Supplier Count") +
+        ggtitle("Number of Vendors used in each country") +
+        theme(panel.background = element_rect(fill = "white",
+        color = "black", size = 0.1),
+        axis.text.x = element_text(angle = 45, hjust = 1)) +
+        scale_y_continuous(breaks = pretty_breaks(n = 10)) 
+```
+
+
+***
+***
+
+## b # the average number of Developers in all the repositories and What is the average number of Repositories in all the Projects
+
+```{r}
+# Each repository has a unique Infra ID, so we take InfraId for our calculation as Calendar dataset contains both
+
+# let's look at the structure of InfraId, Developer.ID and Project
+str(cal$InfraId)        # it is an integer value,let's see number of unique values
+length(unique(cal$InfraId)) # it contains 1589 unique values
+str(cal$Developer.ID)   # it contains 4212 different developers
+str(cal$Project)        # it contains 171 projects
+```
+
+```{r}
+# the average number of Developers in all the repositories 
+
+repo_dev <- aggregate(Developer.ID ~ InfraId, data = cal, length)
+
+(sum(repo_dev$Developer.ID)/ length(repo_dev$InfraId))
+```
+
+
+```{r}
+# the average number of Repositories in all the Projects
+
+proj_repo <- aggregate(InfraId ~ Project, data = cal, length)
+
+(sum(proj_repo$InfraId)/ length(proj_repo$Project))
+```
+
+
+***
+***
+
+# c # the Top 3 Suppliers in terms of Billable Coding Effort (CE) Delivered per developer
+
+```{r}
+# let's look at the structure of the relevant columns
+
+str(cal$Developer.ID)   # it contains 4212 different developers
+
+str(cal$Billable.CE)    # it contains numerical values with values between 0 and 5 and is depended on Actual.CE as given, 
+
+str(cal$Supplier)       # it has 45 known vendors and the rest suppliers fall under unknown
+summary(cal$Supplier == 'Unknown')  # there are 134055 suppliers which do not fall in given vendors
+
+# as we don't need unknown values over here, let's drop them
+
+c <- data.frame(cal$Developer.ID, cal$Billable.CE, cal$Supplier)
+
+c_2 <- c[!c$cal.Supplier == "Unknown", ]  # this drops all the rows containing Unknown supplier
+```
+
+
+```{r}
+sup_bill <- aggregate(cal.Billable.CE ~ cal.Supplier + cal.Developer.ID, data = c_2, sum)
+
+# let's arrange sup_bill according to Billabe_CE
+
+# library(dplyr)
+sup_bill_10 <- head(arrange(sup_bill, desc(cal.Billable.CE)), n = 10)  # We get top 6 suppliers according to their Billable.CE
+
+# Supplier       Developer.ID      Billable.CE
+# Vendor-003	  Developer 77149	    284.38	
+# Vendor-027    Developer 78544	    239.94	
+# Vendor-002	  Developer 77935	    238.85	
+```
+
+
+```{r}
+# library(scales)
+
+ggplot(sup_bill_10,aes(x = cal.Supplier, y = cal.Billable.CE, fill = cal.Developer.ID, group = 1)) +
+  geom_line(stat = "identity", aes(colour = cal.Developer.ID), size = 3) +
+  scale_y_continuous(breaks = pretty_breaks(n = 10)) +
+  labs(title = "Top 10 Suppliers in terms of Billable Coding Effort (CE) Delivered per developer") +
+  xlab("Supplier") + ylab("Billable.CE") +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  annotate("text", label="238.85", colour="black", x = 1.5, y = 237) +
+  geom_vline(xintercept = 2, linetype = "dashed") +
+  annotate("text", label="284.38", colour="black", x = 2.5, y = 286) +
+  geom_vline(xintercept = 5, linetype = "dashed") +
+  annotate("text", label="239.94", colour="black", x = 5.5, y = 240) +
+  theme(panel.background = element_rect(fill = "white",
+        color = "black", size = 0.2),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+***
+***
+
+## d # the Project with a maximum number of Billable CE hours per day delivered per developer
+
+```{r}
+# let's look at the structure of the relevant columns
+
+str(cal$Project)  # it contains 171 different Projects
+
+proj_bill <- aggregate(Billable.CE ~ Project + Developer.ID, data = cal, sum)
+
+max(proj_bill$Billable.CE)
+
+#    Project     Developer.ID     Billable.CE
+#  Project 155  Developer 79398      340.00
+
+proj_bill_10 <- head(arrange(proj_bill, desc(Billable.CE)), n = 10) 
+```
+
+```{r}
+library(scales)
+
+ggplot(proj_bill_10,aes(x = Project, y = Billable.CE, fill = Developer.ID, group = 1)) +
+  geom_line(stat = "identity", aes(colour = Developer.ID), size = 3) +
+  scale_y_continuous(breaks = pretty_breaks(n = 10)) +
+  labs(title = "Top 10 Projects in terms of Billable Coding Effort (CE) Delivered per developer") +
+  xlab("Projects") + ylab("Billable.CE") +
+  geom_vline(xintercept = 3, linetype = "dashed") +
+  annotate("text", label="340.00", colour="black", x = 3.5, y = 341.5) +
+  geom_vline(xintercept = 4, linetype = "dashed") +
+  annotate("text", label="327.96", colour="black", x = 4.5, y = 327.96) +
+  geom_vline(xintercept = 4, linetype = "dashed") +
+  annotate("text", label="298.32", colour="black", x = 4.5, y = 298.32) +
+  theme(panel.background = element_rect(fill = "white",
+        color = "black", size = 0.2),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+***
+***
+
+## e # the difference on the total Actual CE delivered between July and August in Country 17
+
+```{r}
+# let's look at the values
+
+str(ft$Actual.CE) 
+# it contains outliers which should be removed
+
+str(ft$Actual.CE[!ft$Actual.CE %in% boxplot.stats(ft$Actual.CE)$out])
+# summary without outliers
+```
+
+
+```{r}
+country_17 <- data.frame(ft$Actual.CE[ft$Country == 'Country 17'], as.factor(month(dmy(ft$Date)))[ft$Country == 'Country 17'], ft$Country[ft$Country == 'Country 17'])
+```
+
+```{r}
+# let's remove outliers in Actual.CE
+country_17 <- country_17[!country_17$ft.Actual.CE.ft.Country.....Country.17.. %in% boxplot.stats(country_17$ft.Actual.CE.ft.Country.....Country.17..)$out,]
+```
+
+
+```{r}
+country_17_7 <- sum(country_17$ft.Actual.CE.ft.Country.....Country.17..[country_17$as.factor.month.dmy.ft.Date....ft.Country.....Country.17.. == 7])
+country_17_8 <- sum(country_17$ft.Actual.CE.ft.Country.....Country.17..[country_17$as.factor.month.dmy.ft.Date....ft.Country.....Country.17.. == 8])
+```
+
+```{r}
+country_17_diff <- (country_17_8 - country_17_7)
+country_17_diff     # difference in total Actual CE between July and August in Country 17 is 1275.94
+```
+
+```{r}
+diff <- c(country_17_8, country_17_7)
+
+barplot(diff,
+  main = "Total Actual CE delivered in July and August in Country 17",
+  ylim = c(0,8500),
+  #horiz = TRUE,
+  las = 1,
+  names.arg = c("July", "August"),
+  col = c("red4","red3"),
+  ylab = "Total Actual.CE in Country 17") 
+
+text(0.8, 8457, "8254.12")
+text(1.9, 7400, "6978.18")
+```
+
+***
+***
+
+## f # the total number of developers in each one of the last 3 months for Vendor-002
+
+```{r}
+# library("lubridate")
+f <- data.frame(cal$Developer.ID, cal$Date, cal$Supplier)
+f$only_month <- as.factor(month(dmy(f$cal.Date))) # convert month values to factor from numeric
+# OR  (above step can also be done like below)
+#f$only_month <- month(as.POSIXlt(f$cal.Date, format = "%d/%m/%Y"))
+#f$only_month <- as.factor(f$only_month) 
+
+str(f)  # we can see the new structure of Date in only_month
+```
+
+```{r}
+ven_002 <- f[f$cal.Supplier == "Vendor-002",]   # we only need Vendor-002 supplier here, so extract that
+```
+
+
+```{r}
+# total number of developers in each one of the last 3 months for Vendor-002
+total_dev_7 <- length(unique(ven_002$cal.Developer.ID[ven_002$only_month == 7]))  # 368
+total_dev_8 <- length(unique(ven_002$cal.Developer.ID[ven_002$only_month == 8]))  # 336
+total_dev_9 <- length(unique(ven_002$cal.Developer.ID[ven_002$only_month == 9]))  # 226
+```
+
+
+```{r}
+total_dev <- c(total_dev_7, total_dev_8, total_dev_9)
+
+barplot(total_dev,
+  main = "No. of developers in last 3 months for Vendor-002",
+  ylim = c(0,400),
+  #horiz = TRUE,
+  las = 1,
+  names.arg = c("July", "August", "September"),
+  col = c("red4","red3","red2"),
+  ylab = "Number of Developers") 
+
+text(0.8, 380, "368")
+text(1.9, 350, "336")
+text(3.0, 240, "226")
+
+```
+
+
+***
+***
+
+## g # Percentage of the total projects working with Java Files
+
+```{r}
+project_java <- ft$Project[ft$FileType == 'java']
+prop <- length(project_java)/length(ft$Project)
+prop*100    # 25.3 % of total projects worked with Java Files
+```
+
+```{r}
+ggplot(data = ft, aes(FileType, group = length(FileType))) + geom_histogram(aes(y = ..prop.., fill = factor(..x..)), stat="count") +
+  labs(title = "Count of File Type") +
+  labs(x = "FileType", y = "Count") +
+  scale_y_continuous(labels=scales::percent)
+```
+
+
+***
+***
+
+## h # the most common task type in Repository 642
+
+```{r}
+# let's look at the structure of the relevant columns
+
+str(uni$Repository)  # it contains 7735 different Repositories
+
+uni$InfraId[uni$Repository == 'Repo 642'] # 41583 InfraId belongs to Repo 642
+
+task_642 <- task$Task.Type[task$InfraId == 41583] # this stores all the Task Types for relevant InfraId
+
+task_642 <- data.frame(table(task_642)) # this gives a task type null with 107 frequency, which should be ignored
+
+task_642 <- task_642[!task_642$task_642 == 'null',] # dropping null
+
+task_642    # most common task is Improvement with frequency of 31
+```
+
+```{r}
+ggplot(data = task_642, aes(x = task_642, y = Freq, fill = Freq)) + geom_bar(stat="identity") +
+  scale_y_continuous(breaks = pretty_breaks(n = 15)) +
+  xlab("Task Types In Repo 642") +
+  ggtitle("Most common task type in Repository 642") +
+  theme(panel.background = element_rect(fill = "white",
+        color = "black", size = 0.5),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+***
+***
+***
+
+# Clustering
+
+```{r}
+# store eMail as Developer, as they are same
+ft$Developer <- as.factor(gsub("\\@", "", ft$eMail))
+```
+
+
+```{r}
+summary(ft)
+```
+
+
+```{r}
+#Create a normalization function
+# we can normalize the data 
+
+normalize <- function(x) {
+return((x - min(x))/(max(x) - min(x)))} # create normalize function
+```
+
+
+```{r}
+ft_new <- aggregate(Date ~ InfraId + FileType, data = ft, length) # taking infraid and Filetype and aggregating it under dates for all developers
+
+ft_new$FileType <- as.numeric(factor(ft_new$FileType , levels = c("cc", "cs", "html", "java", "js", "py", "r", "sh", "sql", "xml")))  # change factor to numeric
+```
+
+```{r}
+ggplot(ft_new, aes(Date, log(InfraId) , color =  FileType)) + geom_point()
+# we can observe four classifications for this data
+```
+
+
+```{r}
+# normalize 
+norm_ft_new <- as.data.frame(sapply(ft_new, normalize))
+```
+
+
+```{r}
+# Let's check value for the number of clusters to be taken
+
+# Elbow Method
+set.seed(1234)
+
+#library("factoextra")
+
+fviz_nbclust(norm_ft_new, kmeans, method = "wss")
+```
+
+```{r}
+# silhouette Method
+fviz_nbclust(norm_ft_new, kmeans, method = "silhouette")
+
+# We see both methods gives 4 clusters
+```
+
+
+
+# kmeans
+
+```{r}
+# kmeans
+cluster_ft <- kmeans(norm_ft_new, centers = 4, nstart = 25) # with 4 clusters
+
+print(cluster_ft) # to extract the results using 4 clusters
+
+str(cluster_ft)
+# it outputs a cluster of size 1033, 669, 542 and 1244
+
+fviz_cluster(cluster_ft, data = norm_ft_new)  # to visualize the results
+```
+
+```{r}
+# Extract the clusters and add to our initial data to do some descriptive statistics at the cluster level:
+
+ft_new %>%
+  mutate(Cluster = cluster_ft$cluster) %>%
+  group_by(Cluster) %>%
+  summarise_all("mean")
+```
+
+
+***
+***
+***
+
