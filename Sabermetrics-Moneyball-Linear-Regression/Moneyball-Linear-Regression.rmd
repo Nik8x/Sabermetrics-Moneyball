@@ -1,0 +1,116 @@
+---
+title: "Moneyball-Prediction"
+author: "Niket"
+output: rmarkdown::github_document
+---
+
+```{r}
+# Read in data
+baseball <- read.csv("baseball.csv", header = TRUE)
+str(baseball)
+# Observation for every team and year pair from 1962 to 2012 for all seasons with 162 games
+```
+
+```{r}
+# As we are looking at moneyball, so we Subset to only include moneyball years beafore 2002
+moneyball <- subset(baseball, Year < 2002) # for year less than 2002
+str(moneyball)
+```
+
+```{r}
+# we need to look at Run Scored and Run Allowed
+# Compute Run Difference
+moneyball$RD <- moneyball$RS - moneyball$RA
+str(moneyball)
+```
+
+```{r}
+# let's see whether there is a linear relationship between Run Difference and Wins
+# Scatterplot to check for linear relationship
+plot(moneyball$RD, moneyball$W, col = "red")
+# a very strong relationship can be seen
+```
+
+
+```{r}
+# Regression model to predict wins using independent variable RD
+WinsReg <- lm(W ~ RD, data = moneyball)
+summary(WinsReg)
+# RD is very significant with 3 stars and R-Squared is 0.88 which is strong model
+```
+
+
+```{r}
+# moneyball claimed that team needs to score atleast 135 runs more than they allow to win atleast 95 games
+# Our coefficient table tells that the regression equation is
+# Wins(W) = Intercept(80.8814) + Coefficient for Run Difference(0.1058(RD))
+# we want W >= 95 so that A's make it to playoffs
+# this is true iff our regression equation is greater than or equal to 95
+# we want 80.8814 + 0.1058(RD) >= 95
+# RD >= 133.4
+# so this 133.4 is very close to the prediction made by moneyball of 135 runs
+# so the claim is verified
+```
+
+
+```{r}
+str(moneyball)
+```
+
+```{r}
+# Regression model to predict runs scored on three variables
+RunsReg <- lm(RS ~ OBP + SLG + BA, data = moneyball)
+summary(RunsReg)
+# All variables are significant and R-Squared is 0.93
+# but coefficient for batting avg. is -ve,
+# => when all else being equal a team with loweer batting average will score more runs which is counterintuitive,
+# this is due to multicollinearity, as these 3 hitting statistics are highly correlated, 
+
+# lets remove batting avg, BA, variable with least significance
+RunsReg <- lm(RS ~ OBP + SLG, data = moneyball)
+summary(RunsReg)
+# our independent variables are still significant and our R-Squared is 0.93, and coefficients are +ve
+# OBP has larger coefficient tha SLG, these variables are on same scale, so OBP is probably worth more than SLG,
+# so we can say that BA is overvalued, OBP is most important, and SLG is important for predicting run scored RS.
+```
+
+```{r}
+# Predict Runs and Wins for 2002 Oakland A's
+# we use 2001 team statistics for 2002 performance
+
+# Predicting Runs Scored
+# Team OBP is 0.339
+# Team SLG is 0.430
+
+# our regression equation
+# RS = -804.63 + 2737.77(OBP) + 1584.91(SLG)
+# After putting the values we get 
+# RS = 805
+
+# Predicting Runs Allowed
+# Team OOBP is 0.307
+# team OSLG is 0.373
+
+# our regression equation
+# RA = -873.38 + 2913.60(OOBP) + 1514.29(OSLG)
+# After putting the values we get 
+# RA = 622 
+
+# Regression equation to predict wins is
+# Wins = 80.8814 + 0.1058(RS - RA)
+# Prediction for WIn = 100 
+
+# our prediction vs real prediction vs Actual
+# RS    805           800-820           800
+# RA    622           650-670           653
+# Wins  100            93-97            103
+
+# our prediction is very close to actual result for playoffs
+
+# here we can't predict wins in World Series as sample size is too small,
+# for that we can we use logistic regression
+
+```
+
+
+
