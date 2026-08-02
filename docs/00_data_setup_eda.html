@@ -7804,11 +7804,10 @@ a.anchor-link {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h1 id="Sabermetrics:-data-setup-and-EDA">Sabermetrics: data setup and EDA<a class="anchor-link" href="#Sabermetrics:-data-setup-and-EDA">¶</a></h1><p>1,232 team-seasons (1962-2012), the classic Moneyball case study, the
 2002 Oakland A's used on-base percentage (OBP) instead of batting
-average to find undervalued players. The original notebook only looked
-at data through 2001 (the year before Moneyball became public), which
-made sense for reconstructing what the A's knew at the time, but this
-dataset actually runs a full decade past that, letting us check
-something the original never could: did the market catch on?</p>
+average to find undervalued players. This dataset runs a full decade
+past 2002 (the year Moneyball became public), which makes it possible
+to check something the 2002 snapshot alone can't: did the market catch
+on?</p>
 </div>
 </div>
 </div>
@@ -7927,8 +7926,8 @@ dtype: int64</pre>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">moneyball_era</span> <span class="o">=</span> <span class="n">baseball</span><span class="p">[</span><span class="n">baseball</span><span class="o">.</span><span class="n">Year</span> <span class="o">&lt;</span> <span class="mi">2002</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'pre-2002 (what the original notebook used): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">moneyball_era</span><span class="p">)</span><span class="si">}</span><span class="s1"> team-seasons'</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'2002 and after (available here, never used by the original): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">baseball</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">moneyball_era</span><span class="p">)</span><span class="si">}</span><span class="s1"> team-seasons'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'pre-2002: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">moneyball_era</span><span class="p">)</span><span class="si">}</span><span class="s1"> team-seasons'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'2002 and after: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">baseball</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">moneyball_era</span><span class="p">)</span><span class="si">}</span><span class="s1"> team-seasons'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7941,8 +7940,8 @@ dtype: int64</pre>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>pre-2002 (what the original notebook used): 902 team-seasons
-2002 and after (available here, never used by the original): 330 team-seasons
+<pre>pre-2002: 902 team-seasons
+2002 and after: 330 team-seasons
 </pre>
 </div>
 </div>

@@ -112,13 +112,11 @@ a { color: var(--series-1); }
 <header class="hero">
   <h1>Sabermetrics: Did the Market Catch On to Moneyball?</h1>
   <p class="lede">
-    1,232 team-seasons (1962-2012), the classic Moneyball case study.
-    The original notebook only used data through 2001, reconstructing
-    what the 2002 Oakland A's knew when they started valuing on-base
-    percentage over batting average. This data actually runs a decade
-    further, letting a question the original never could ask actually
-    get answered: once the strategy became public, did the rest of the
-    league catch on?
+    1,232 team-seasons (1962-2012), the classic Moneyball case study,
+    the 2002 Oakland A's started valuing on-base percentage over
+    batting average. Data through 2012 makes it possible to answer a
+    question the 2002 snapshot alone can't: once the strategy became
+    public, did the rest of the league catch on?
   </p>
   <div class="pill-row">
     <span class="pill">1,232 team-seasons, 1962-2012</span>
@@ -149,7 +147,7 @@ a { color: var(--series-1); }
   <table>
     <thead><tr><th>Period</th><th class="num">OBP coefficient</th><th class="num">SLG coefficient</th><th class="num">OBP/SLG ratio</th></tr></thead>
     <tbody>
-      <tr><td>Pre-2002 (what the original used)</td><td class="num">2,738</td><td class="num">1,585</td><td class="num">1.73</td></tr>
+      <tr><td>Pre-2002</td><td class="num">2,738</td><td class="num">1,585</td><td class="num">1.73</td></tr>
       <tr><td>2002 and after</td><td class="num">2,553</td><td class="num">1,818</td><td class="num">1.40</td></tr>
     </tbody>
   </table>
@@ -165,10 +163,9 @@ a { color: var(--series-1); }
 <section id="model">
   <h2>A genuine out-of-sample test</h2>
   <p class="section-intro">
-    The original notebook's "prediction" for the 2002 A's used
-    coefficients fit partly on data the team already had in hand. This
-    rebuild fits only on 1962-2001, then evaluates on every season from
-    2002 onward, a true forecast of seasons the model never saw.
+    Fitting only on 1962-2001, then evaluating on every season from
+    2002 onward, gives a true forecast of seasons the model never saw,
+    rather than a prediction built partly on data already in hand.
   </p>
   <div class="stat-grid">
     <div class="stat"><div class="num">3.25 wins</div><div class="label">out-of-sample MAE, 2002-2012 seasons</div></div>
@@ -181,8 +178,7 @@ a { color: var(--series-1); }
   <p>
     A model that never saw a single post-2001 season still predicts
     wins to within about 3 games on average, a genuine, honest
-    validation of the core insight that the original's single-team
-    hand-check never actually demonstrated.
+    validation of the core insight, not just a single-team hand-check.
   </p>
 </section>
 
@@ -217,11 +213,11 @@ a { color: var(--series-1); }
       became public.</li>
     <li><strong>A model that never saw a post-2001 season predicts wins
       to within about 3 games out-of-sample</strong>, a real forecast,
-      not a lookback the original notebook never actually attempted.</li>
-    <li><strong>BA's multicollinearity with OBP/SLG was real but
-      moderate</strong> (VIF 4.2), confirming the original's instinct
-      to drop it without the underlying problem being as severe as the
-      flipped coefficient sign suggested.</li>
+      not just an in-sample lookback.</li>
+    <li><strong>Batting average's multicollinearity with OBP/SLG was
+      real but moderate</strong> (VIF 4.2), the flipped coefficient sign
+      it causes looks more dramatic than the underlying collinearity
+      actually is.</li>
     <li><strong>Batting profile alone sorts team-seasons into real
       success tiers</strong> without ever using wins or playoff data,
       a 0.4% to 37.5% playoff-rate spread across just 4 clusters.</li>
@@ -244,7 +240,7 @@ a { color: var(--series-1); }
 
 <footer>
   Full detail, code, and every number above in the
-  <a href="https://github.com/Nik8x/Extra">notebooks</a>.
+  <a href="https://github.com/Nik8x/Sabermetrics-Moneyball">notebooks</a>.
 </footer>
 
 </main>

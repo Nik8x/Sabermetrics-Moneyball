@@ -7802,13 +7802,10 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Model-training-and-evaluation">Model training and evaluation<a class="anchor-link" href="#Model-training-and-evaluation">¶</a></h1><p>The original notebook fits its regressions on the full pre-2002 dataset
-and never holds anything back to check how well they'd have actually
-predicted a season they hadn't seen, its "prediction" for the 2002 A's
-uses coefficients fit partly on 2001 data the team already had in hand.
-This rebuild uses a genuine time-based split: fit on 1962-2001, evaluate
-on every season from 2002 onward, a true out-of-sample forecast, the
-way the A's would have really had to use a model like this.</p>
+<h1 id="Model-training-and-evaluation">Model training and evaluation<a class="anchor-link" href="#Model-training-and-evaluation">¶</a></h1><p>Using a genuine time-based split, fit on 1962-2001, evaluate on every
+season from 2002 onward, gives a true out-of-sample forecast, the way
+the A's would have really had to use a model like this, rather than a
+prediction built partly on data already in hand.</p>
 </div>
 </div>
 </div>
@@ -7965,9 +7962,8 @@ baseline (predict training mean): MAE = 9.72 wins
 <p>The Wins model, fit only on data through 2001 and never shown a
 single post-2002 season during training, still predicts out-of-sample
 wins to within a few games on average, a real out-of-sample validation
-of the core Moneyball insight (run differential predicts wins) that the
-original notebook's hand-computed single-team check never actually
-demonstrated.</p>
+of the core Moneyball insight (run differential predicts wins), not
+just a single-team hand check.</p>
 </div>
 </div>
 </div>

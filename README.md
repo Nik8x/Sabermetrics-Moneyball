@@ -2,18 +2,10 @@
 
 1,232 MLB team-seasons (1962-2012), the classic Moneyball case study,
 the 2002 Oakland A's used on-base percentage instead of batting average
-to find undervalued players. This repo previously bundled several
-smaller course-exercise notebooks alongside the Moneyball analysis;
-those are kept in `_old/`, and this rebuild focuses on the Sabermetrics
-data specifically, extended with a full decade of data the original
-analysis never had.
-
-The original notebook only looked at seasons through 2001, which made
-sense for reconstructing what the A's knew at the time, but stops short
-of a question the fuller dataset can actually answer: once the
-Moneyball strategy became public, did the rest of the league catch on?
-It also never held any data back for evaluation, its "prediction" for
-the 2002 A's uses coefficients fit partly on data the team already had.
+to find undervalued players. This analysis covers the full 1962-2012
+span, which makes it possible to ask a question the 2002 snapshot alone
+can't answer: once the Moneyball strategy became public, did the rest
+of the league catch on?
 
 ## Notebooks
 
@@ -22,11 +14,11 @@ the 2002 A's uses coefficients fit partly on data the team already had.
 2. `01_statistical_testing.ipynb`: does the OBP-over-SLG advantage
    shrink after 2002? (yes, a real 1.73x to 1.40x drop).
 3. `02_feature_engineering_selection.ipynb`: an actual variance
-   inflation factor on the batting-average multicollinearity the
-   original noticed but only reasoned about qualitatively.
+   inflation factor on the batting-average multicollinearity, checked
+   formally rather than reasoned about only qualitatively.
 4. `03_model_training_evaluation.ipynb`: a genuine time-based
    train/test split, fit on 1962-2001, evaluated out-of-sample on
-   2002-2012, unlike the original's in-sample-only check.
+   2002-2012.
 5. `04_clustering.ipynb`: KMeans and Gaussian mixture clustering of
    team-seasons by batting profile alone, checked against real wins
    and playoff outcomes afterward.

@@ -7802,12 +7802,11 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Feature-engineering">Feature engineering<a class="anchor-link" href="#Feature-engineering">¶</a></h1><p>The original notebook noticed that adding batting average (BA) to a
-regression alongside OBP and SLG flips its coefficient negative, a
-classic multicollinearity symptom, and fixed it by dropping BA based on
-intuition ("least significant, drop it"). This puts an actual variance
-inflation factor on that decision, and builds the feature sets used for
-modeling in the next notebook.</p>
+<h1 id="Feature-engineering">Feature engineering<a class="anchor-link" href="#Feature-engineering">¶</a></h1><p>Adding batting average (BA) to a regression alongside OBP and SLG flips
+its coefficient negative, a classic multicollinearity symptom. This
+puts an actual variance inflation factor on that decision to check it
+formally, rather than by intuition ("least significant, drop it"), and
+builds the feature sets used for modeling in the next notebook.</p>
 </div>
 </div>
 </div>
@@ -7872,7 +7871,7 @@ dtype: float64</pre>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p>BA's VIF (4.2) is well below the commonly-cited VIF &gt; 10 red flag, so this isn't the kind of severe multicollinearity seen elsewhere in this portfolio (Wine-Linear-Regression's Age/FrancePop pair hit VIF 98). It's still elevated enough to be worth removing, a moderate, real overlap between batting average and the two stats that already incorporate it, but this is a case where the original's "drop it, it's redundant" instinct was directionally right without the underlying multicollinearity actually being as severe as the flipped sign made it look.</p>
+<p>BA's VIF (4.2) is well below the commonly-cited VIF &gt; 10 red flag, so this isn't the kind of severe multicollinearity seen elsewhere in this portfolio (Wine-Linear-Regression's Age/FrancePop pair hit VIF 98). It's still elevated enough to be worth removing, a moderate, real overlap between batting average and the two stats that already incorporate it, the flipped coefficient sign makes the underlying multicollinearity look more severe than the VIF number says it actually is.</p>
 </div>
 </div>
 </div>
